@@ -18,7 +18,7 @@ const RECIPIENT = process.env.RECIPIENT_ADDRESS;
 const PAYMENT_AMOUNT = parseFloat(process.env.PAYMENT_AMOUNT_STX || '0.1');
 
 // Initialize OpenAI (optional - for demo purposes)
-const openai = process.env.OPENAI_API_KEY 
+const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
@@ -49,10 +49,10 @@ function trackRequest(endpoint, amount) {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     network: NETWORK,
-    paymentEnabled: !!RECIPIENT 
+    paymentEnabled: !!RECIPIENT
   });
 });
 
@@ -147,10 +147,10 @@ app.post('/api/ai/chat',
       }
     } catch (error) {
       console.error('Error in /api/ai/chat:', error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: 'Failed to process AI request',
-        details: error.message 
+        details: error.message
       });
     }
   }
@@ -202,10 +202,10 @@ app.post('/api/ai/summarize',
       }
     } catch (error) {
       console.error('Error in /api/ai/summarize:', error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: 'Failed to summarize text',
-        details: error.message 
+        details: error.message
       });
     }
   }
@@ -238,10 +238,10 @@ app.post('/api/ai/translate',
       });
     } catch (error) {
       console.error('Error in /api/ai/translate:', error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: 'Failed to translate text',
-        details: error.message 
+        details: error.message
       });
     }
   }
@@ -283,19 +283,21 @@ app.get('/api/premium/data',
 
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  res.status(500).json({ 
-    success: false, 
+  res.status(500).json({
+    success: false,
     error: 'Internal server error',
-    message: err.message 
+    message: err.message
   });
 });
 
 // ============================================
-// START SERVER
+// START SERVER (Local Development Only)
 // ============================================
 
-app.listen(PORT, () => {
-  console.log(`
+// Only start server if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
 ║              💰 PayPerPrompt API Server 💰                ║
@@ -323,5 +325,9 @@ app.listen(PORT, () => {
    • GET  /api/premium/data    - Premium Data (${PAYMENT_AMOUNT * 2} STX)
 
 🎯 Ready to accept payments!
-  `);
-});
+    `);
+  });
+}
+
+// Export for Vercel serverless
+export default app;
